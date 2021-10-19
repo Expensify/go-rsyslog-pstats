@@ -128,7 +128,12 @@ func findNums(prefix string, kvs map[string]interface{}, out io.Writer) {
 			continue
 		}
 
-		_, err := fmt.Fprintf(out, "rsyslog.%v.%v:%d|g\n", prefix, sanitizeKey(k), int(vf))
+		hostname, err := os.Hostname()
+		if err != nil {
+			el.Println("Error determining hostname", err)
+		}
+
+		_, err = fmt.Fprintf(out, hostname+".rsyslog.%v.%v:%d|g\n", prefix, sanitizeKey(k), int(vf))
 		if err != nil {
 			el.Println("Error while writing", err)
 		}
