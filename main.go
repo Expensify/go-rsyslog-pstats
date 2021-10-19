@@ -32,13 +32,14 @@ func printVersion() {
 }
 
 func printHelp() {
-	fmt.Fprintln(os.Stderr, "go-rsyslog-pstats --port number\n")
+	fmt.Fprintln(os.Stderr, "go-rsyslog-pstats [--host 1.2.3.4] --port number")
 	fmt.Fprintf(os.Stderr, "Parses and forwards rsyslog process stats to a local statsite or statsd process\n\n")
 	flag.PrintDefaults()
 }
 
-func parseConfig() (port string) {
+func parseConfig() (host string, port string) {
 	flag.Usage = printHelp
+	hostAddress := flag.String("host", "localhost", "Statsd host to send metrics to")
 	outPort := flag.String("port", "", "Statsite udp port to connect to")
 	printV := flag.Bool("version", false, "Prints the version string")
 	flag.Parse()
@@ -48,21 +49,21 @@ func parseConfig() (port string) {
 		os.Exit(0)
 	}
 
-	return *outPort
+	return *hostAddress, *outPort
 }
 
 func main() {
-	outPort := parseConfig()
+	hostAddress, outPort := parseConfig()
 
 	in := bufio.NewReader(os.Stdin)
 
 	if outPort == "" {
-		el.Println("No port was provided\n")
+		el.Println("No port was provided")
 		printHelp()
 		os.Exit(1)
 	}
 
-	udpAddr, err := net.ResolveUDPAddr("udp", "localhost:"+outPort)
+	udpAddr, err := net.ResolveUDPAddr("udp", hostAddress+":"+outPort)
 	if err != nil {
 		el.Fatal("Could not resolve address", err)
 	}
