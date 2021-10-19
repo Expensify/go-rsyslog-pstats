@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"strings"
 )
 
 const (
@@ -133,7 +134,10 @@ func findNums(prefix string, kvs map[string]interface{}, out io.Writer) {
 			el.Println("Error determining hostname", err)
 		}
 
-		_, err = fmt.Fprintf(out, hostname+".rsyslog.%v.%v:%d|g\n", prefix, sanitizeKey(k), int(vf))
+		// Replace periods with hyphens for graphite compatbility
+		hostnameFormatted := strings.Replace(hostname, ".", "-", -1)
+
+		_, err = fmt.Fprintf(out, "rsyslog."+hostnameFormatted+".%v.%v:%d|g\n", prefix, sanitizeKey(k), int(vf))
 		if err != nil {
 			el.Println("Error while writing", err)
 		}
