@@ -135,7 +135,7 @@ func findNums(prefix string, kvs map[string]interface{}, out io.Writer) {
 		}
 
 		// Replace periods with hyphens for graphite compatbility
-		hostnameFormatted := strings.Replace(hostname, ".", "-", -1)
+		hostnameFormatted := strings.ReplaceAll(hostname, ".", "-")
 
 		_, err = fmt.Fprintf(out, "rsyslog."+hostnameFormatted+".%v.%v:%d|g\n", prefix, sanitizeKey(k), int(vf))
 		if err != nil {
